@@ -53,6 +53,9 @@ onDemand nm = fix \go -> State.getN nm >>= \case
 	RequestPushBack bs ->
 		State.modifyN nm (ByteString . (bs `BSF.append`) . unByteString) >>
 		Pipe.yield "" >> go
+	RequestFlush ->
+		State.putN nm (ByteString BSF.empty) >>
+		Pipe.yield "" >> go
 	where
 	errne :: String
 	errne = "Not enough ByteString"
@@ -74,6 +77,7 @@ data Request
 	| RequestBuffer Int
 	| RequestString
 	| RequestPushBack BSF.ByteString
+	| RequestFlush
 	deriving Show
 
 newtype ByteString = ByteString { unByteString :: BSF.ByteString } deriving Show
